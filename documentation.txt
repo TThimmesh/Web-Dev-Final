@@ -1,1 +1,11 @@
 Thought Pertaining To Final Project
+
+I want to create some type of skill transfer website. Essentially where users can learn from
+others users. The basic structure being the following
+
+Catchy Homepage
+
+
+Users
+
+
