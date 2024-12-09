@@ -1,9 +1,62 @@
-body {
-    font-family: Arial, Helvetica, sans-serif;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.homescreen {
-    font-family: Arial, Helvetica, sans-serif;
+body {
+    font-family: Arial, sans-serif;
+}
+
+header {
+    position: relative;
+    height: 300px;
+    background-image: url('colorful-school-background-google-slides.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white;
     display: flex;
-    outline: black solid 1px;
+    justify-content: center;
+    align-items: center;
+}
+
+header h1 {
+    font-size: 3em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+
+main {
+    padding: 20px;
+}
+
+section h2 {
+    margin-bottom: 20px;
+    font-size: 2em;
+}
+
+.creators-list, .content-list {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.creator, .content {
+    width: 30%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.creator h3, .content h3 {
+    font-size: 1.5em;
+}
+
+
+iframe {
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
 }
