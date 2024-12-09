@@ -7,5 +7,11 @@ Catchy Homepage
 
 
 Users
+-Includes a database for managing user accounts
+-Would also like to have some type of creator verification such as a checkmark by their name
+-
+
+Utilizing iFrames for content on the home page
+
 
 
