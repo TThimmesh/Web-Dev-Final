@@ -1,5 +1,4 @@
 <?php
-
 // Start Session
 session_start();
 
@@ -11,7 +10,6 @@ $pass = 'root';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
-
 $options = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -37,10 +35,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_course'])) {
     $image_url = $_POST['image_url'] ?? '';
     $content = $_POST['content'] ?? '';
 
+    // Validate inputs
     if ($title && $description && $image_url) {
-        $stmt = $pdo->prepare("INSERT INTO courses (user_id, title, description, image_url, content, popularity, recommended) VALUES (?, ?, ?, ?, ?, 0, 0)");
-        $stmt->execute([$_SESSION['user_id'], $title, $description, $image_url, $content]);
-        $success = "Course created successfully!";
+        try {
+            $stmt = $pdo->prepare("INSERT INTO courses (user_id, title, description, image_url, content, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+            $stmt->execute([$_SESSION['user_id'], $title, $description, $image_url, $content]);
+
+            // Success message
+            $success = "Course created successfully!";
+        } catch (PDOException $e) {
+            // Handle database error
+            $error = "Error creating course: " . $e->getMessage();
+        }
     } else {
         $error = "All fields are required to create a course.";
     }
@@ -60,156 +66,7 @@ $courses = $stmt->fetchAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - LearningHub</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        header {
-            background-color: #333;
-            color: #fff;
-            padding: 20px 0;
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-        }
-
-        .logo h1 {
-            margin: 0;
-        }
-
-        .nav-links {
-            list-style: none;
-            display: flex;
-            gap: 20px;
-        }
-
-        .nav-links li {
-            display: inline;
-        }
-
-        .nav-links a {
-            color: #fff;
-            text-decoration: none;
-        }
-
-        .nav-links a:hover {
-            text-decoration: underline;
-        }
-
-        .section {
-            padding: 50px 20px;
-            text-align: center;
-        }
-
-        .course-cards {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .course-card {
-            width: 280px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease;
-        }
-
-        .course-card:hover {
-            transform: translateY(-10px);
-        }
-
-        .course-card img {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
-
-        .course-card-body {
-            padding: 15px;
-        }
-
-        .course-card h3 {
-            margin: 10px 0;
-            font-size: 18px;
-            color: #333;
-        }
-
-        .course-card p {
-            font-size: 14px;
-            color: #555;
-        }
-
-        .course-card .cta-button {
-            background-color: #007BFF;
-            color: white;
-            padding: 10px 20px;
-            font-size: 14px;
-            border-radius: 4px;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 15px;
-        }
-
-        .course-card .cta-button:hover {
-            background-color: #0056b3;
-        }
-
-        .message {
-            margin: 10px 0;
-            padding: 10px;
-            border-radius: 4px;
-        }
-
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
-
-        form {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 20px;
-            background: white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        input[type="text"], textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #0056b3;
-        }
+        /* Add your styling here */
     </style>
 </head>
 <body>
@@ -238,10 +95,10 @@ $courses = $stmt->fetchAll();
 <section class="section">
     <h2>Welcome to Your Dashboard</h2>
 
+    <!-- Display success or error message -->
     <?php if (isset($success)): ?>
         <div class="message success"><?php echo htmlspecialchars($success); ?></div>
     <?php endif; ?>
-
     <?php if (isset($error)): ?>
         <div class="message error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
@@ -271,9 +128,7 @@ $courses = $stmt->fetchAll();
                 <div class="course-card-body">
                     <h3><?php echo htmlspecialchars($course['title']); ?></h3>
                     <p><?php echo htmlspecialchars($course['description']); ?></p>
-                    <a href="dashboard.php?delete_course_id=<?php echo $course['course_id']; ?>"
-                       class="cta-button"
-                       onclick="return confirm('Are you sure you want to delete this course?');">Delete Course</a>
+                    <a href="course_details.php?course_id=<?php echo $course['course_id']; ?>" class="cta-button">View Details</a>
                 </div>
             </div>
         <?php endforeach; ?>

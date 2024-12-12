@@ -1,5 +1,5 @@
 <?php
-// Start Session
+// Start session
 session_start();
 
 // Database Configuration
@@ -10,7 +10,6 @@ $pass = 'root';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
-
 $options = [
     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -23,21 +22,26 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-// Get the course ID from the URL
-$course_id = $_GET['id'] ?? null;
+// Check if course_id is passed in the URL
+if (isset($_GET['course_id']) && is_numeric($_GET['course_id'])) {
+    $course_id = $_GET['course_id'];
 
-if ($course_id) {
-    // Fetch course details from the database using the course ID
+    // Fetch course details from the database
     $stmt = $pdo->prepare("SELECT * FROM courses WHERE course_id = ?");
     $stmt->execute([$course_id]);
     $course = $stmt->fetch();
 
-    // If no course is found, display an error message
     if (!$course) {
-        die("Course not found!");
+        echo "Invalid or missing course_id in URL!";
+        exit;
     }
+
+    // Format the created_at date
+    $created_at = new DateTime($course['created_at']);
+    $formatted_date = $created_at->format('F j, Y');
 } else {
-    die("Invalid course ID!");
+    echo "Invalid or missing course_id in URL!";
+    exit;
 }
 ?>
 
@@ -46,7 +50,7 @@ if ($course_id) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($course['title']); ?> - LearningHub</title>
+    <title>Course Details - LearningHub</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -91,37 +95,60 @@ if ($course_id) {
             text-decoration: underline;
         }
 
-        .course-detail {
-            padding: 20px;
-            max-width: 1000px;
-            margin: 0 auto;
-            background-color: white;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
+        .section {
+            padding: 50px 20px;
+            text-align: center;
         }
 
-        .course-detail img {
+        .course-card {
             width: 100%;
-            height: 400px;
-            object-fit: cover;
+            background: white;
             border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
-        .course-detail h2 {
-            margin-top: 20px;
-            font-size: 28px;
+        .course-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
         }
 
-        .course-detail p {
-            margin-top: 20px;
-            font-size: 16px;
-            line-height: 1.6;
+        .course-card-body {
+            padding: 20px;
         }
 
-        .course-detail .price {
+        .course-card h2 {
+            margin: 10px 0;
             font-size: 24px;
-            color: #007BFF;
-            margin-top: 20px;
+            color: #333;
+        }
+
+        .course-card p {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .course-card .created-at {
+            font-size: 14px;
+            color: #777;
+        }
+
+        .cta-button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -138,7 +165,7 @@ if ($course_id) {
             <li><a href="browse.php">Browse Content</a></li>
             <?php if (isset($_SESSION['user_id'])): ?>
                 <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="logout.php">Logout</a></li>
+                <li><a href="login.php">Logout</a></li>
             <?php else: ?>
                 <li><a href="login.php">Login</a></li>
                 <li><a href="register.php">Register</a></li>
@@ -147,18 +174,24 @@ if ($course_id) {
     </nav>
 </header>
 
-<!-- Course Detail Section -->
-<section class="course-detail">
-    <img src="<?php echo $course['image_url']; ?>" alt="Course Image">
-    <h2><?php echo htmlspecialchars($course['title']); ?></h2>
-    <p><?php echo nl2br(htmlspecialchars($course['description'])); ?></p>
-    <div class="price">$<?php echo number_format($course['price'], 2); ?></div>
-</section>
+<!-- Course Details Section -->
+<section class="section">
+    <h2>Course Details</h2>
 
-<!-- Footer Section -->
-<footer>
-    <p>&copy; 2024 LearningHub. All rights reserved.</p>
-</footer>
+    <div class="course-card">
+        <img src="<?php echo htmlspecialchars($course['image_url']); ?>" alt="Course Image">
+        <div class="course-card-body">
+            <h2><?php echo htmlspecialchars($course['title']); ?></h2>
+            <p><?php echo nl2br(htmlspecialchars($course['description'])); ?></p>
+            <p class="created-at">Created On: <?php echo $formatted_date; ?></p>
+
+            <!-- You can add a button or action here, for example -->
+            <a href="dashboard.php?delete_course_id=<?php echo $course['course_id']; ?>"
+               class="cta-button"
+               onclick="return confirm('Are you sure you want to delete this course?');">Delete Course</a>
+        </div>
+    </div>
+</section>
 
 </body>
 </html>

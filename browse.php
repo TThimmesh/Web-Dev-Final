@@ -160,7 +160,8 @@ $courses = $stmt->fetchAll();
                 <p><?php echo substr($course['description'], 0, 100); ?>...</p>
                 <span class="category"><?php echo $course['category']; ?></span>
                 <br>
-                <a href="course-details.php?id=<?php echo $course['course_id']; ?>">View Details</a>
+                <!-- Corrected link to course_details.php -->
+                <a href="course_details.php?id=<?php echo $course['course_id']; ?>" class="cta-button">View Details</a>
             </div>
         </div>
     <?php endforeach; ?>
