@@ -23,12 +23,12 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-// Fetch Popular Courses (assuming you have a 'popularity' column in your 'courses' table)
+// Fetch Popular Courses
 $query = "SELECT * FROM courses ORDER BY popularity DESC LIMIT 6";
 $stmt = $pdo->query($query);
 $popularCourses = $stmt->fetchAll();
 
-// Fetch Recommended Courses (assuming you have a 'recommended' column in your 'courses' table)
+// Fetch Recommended Courses
 $query = "SELECT * FROM courses WHERE recommended = 1 LIMIT 6";
 $stmt = $pdo->query($query);
 $recommendedCourses = $stmt->fetchAll();
@@ -203,7 +203,7 @@ $recommendedCourses = $stmt->fetchAll();
     <div class="course-cards">
         <?php foreach ($popularCourses as $course): ?>
             <div class="course-card">
-                <img src="path/to/course-image.jpg" alt="Course Image">
+                <img src="<?php echo htmlspecialchars($course['image_url']); ?>" alt="Course Image">
                 <div class="course-card-body">
                     <h3><?php echo htmlspecialchars($course['title']); ?></h3>
                     <p><?php echo htmlspecialchars($course['description']); ?></p>
@@ -220,7 +220,7 @@ $recommendedCourses = $stmt->fetchAll();
     <div class="course-cards">
         <?php foreach ($recommendedCourses as $course): ?>
             <div class="course-card">
-                <img src="path/to/course-image.jpg" alt="Course Image">
+                <img src="<?php echo htmlspecialchars($course['image_url']); ?>" alt="Course Image">
                 <div class="course-card-body">
                     <h3><?php echo htmlspecialchars($course['title']); ?></h3>
                     <p><?php echo htmlspecialchars($course['description']); ?></p>
