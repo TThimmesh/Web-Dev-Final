@@ -181,7 +181,7 @@ $recommendedCourses = $stmt->fetchAll();
             <li><a href="browse.php">Browse Content</a></li>
             <?php if (isset($_SESSION['user_id'])): ?>
                 <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="login.php">Logout</a></li>
+                <li><a href="logout.php">Logout</a></li> <!-- Updated logout link -->
             <?php else: ?>
                 <li><a href="login.php">Login</a></li>
                 <li><a href="register.php">Register</a></li>

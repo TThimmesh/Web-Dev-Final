@@ -137,7 +137,7 @@ if (isset($_POST['login'])) {
         </form>
 
         <div class="toggle">
-            <p>Don't have an account? <a href="index.php">Register here</a>.</p>
+            <p>Don't have an account? <a href="register.php">Register here</a>.</p>
         </div>
     </div>
 </body>

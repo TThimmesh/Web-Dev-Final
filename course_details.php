@@ -23,11 +23,22 @@ try {
     die("Error: " . $e->getMessage());
 }
 
-// Fetch all courses from the database
-$query = "SELECT * FROM courses ORDER BY popularity DESC";
-$stmt = $pdo->prepare($query);
-$stmt->execute();
-$courses = $stmt->fetchAll();
+// Get the course ID from the URL
+$course_id = $_GET['id'] ?? null;
+
+if ($course_id) {
+    // Fetch course details from the database using the course ID
+    $stmt = $pdo->prepare("SELECT * FROM courses WHERE course_id = ?");
+    $stmt->execute([$course_id]);
+    $course = $stmt->fetch();
+
+    // If no course is found, display an error message
+    if (!$course) {
+        die("Course not found!");
+    }
+} else {
+    die("Invalid course ID!");
+}
 ?>
 
 <!DOCTYPE html>
@@ -35,9 +46,8 @@ $courses = $stmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Browse Content - LearningHub</title>
+    <title><?php echo htmlspecialchars($course['title']); ?> - LearningHub</title>
     <style>
-        /* Add your styles here */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -81,50 +91,37 @@ $courses = $stmt->fetchAll();
             text-decoration: underline;
         }
 
-        .courses-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
+        .course-detail {
             padding: 20px;
-        }
-
-        .course-card {
-            width: calc(33.33% - 20px);
+            max-width: 1000px;
+            margin: 0 auto;
             background-color: white;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            overflow: hidden;
-            transition: transform 0.2s;
         }
 
-        .course-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .course-card img {
+        .course-detail img {
             width: 100%;
-            height: 200px;
+            height: 400px;
             object-fit: cover;
+            border-radius: 8px;
         }
 
-        .course-card .content {
-            padding: 15px;
+        .course-detail h2 {
+            margin-top: 20px;
+            font-size: 28px;
         }
 
-        .course-card h3 {
-            margin: 0;
-            font-size: 18px;
+        .course-detail p {
+            margin-top: 20px;
+            font-size: 16px;
+            line-height: 1.6;
         }
 
-        .course-card p {
-            font-size: 14px;
-            color: #555;
-        }
-
-        .course-card .category {
-            font-size: 12px;
+        .course-detail .price {
+            font-size: 24px;
             color: #007BFF;
-            margin-top: 10px;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -150,20 +147,12 @@ $courses = $stmt->fetchAll();
     </nav>
 </header>
 
-<!-- Browse Courses Section -->
-<section class="courses-container">
-    <?php foreach ($courses as $course): ?>
-        <div class="course-card">
-            <img src="<?php echo $course['image_url']; ?>" alt="Course Image">
-            <div class="content">
-                <h3><?php echo $course['title']; ?></h3>
-                <p><?php echo substr($course['description'], 0, 100); ?>...</p>
-                <span class="category"><?php echo $course['category']; ?></span>
-                <br>
-                <a href="course-details.php?id=<?php echo $course['course_id']; ?>">View Details</a>
-            </div>
-        </div>
-    <?php endforeach; ?>
+<!-- Course Detail Section -->
+<section class="course-detail">
+    <img src="<?php echo $course['image_url']; ?>" alt="Course Image">
+    <h2><?php echo htmlspecialchars($course['title']); ?></h2>
+    <p><?php echo nl2br(htmlspecialchars($course['description'])); ?></p>
+    <div class="price">$<?php echo number_format($course['price'], 2); ?></div>
 </section>
 
 <!-- Footer Section -->
